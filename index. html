@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background: #000;
+            color: #0f0;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .login-box {
+            width: 380px;
+            padding: 30px;
+            background: rgba(0, 20, 0, 0.8);
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 255, 0, 0.05) 10px,
+                rgba(0, 255, 0, 0.05) 20px
+            );
+            z-index: -1;
+            animation: animateBackground 20s linear infinite;
+        }
+        
+        @keyframes animateBackground {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #0f0;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #0f0;
+            color: #0f0;
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        input:focus {
+            box-shadow: 0 0 10px #0f0;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+        }
+        
+        .error {
+            color: #f00;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        }
+        
+        .dashboard {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 30px;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2.5em;
+            text-shadow: 0 0 15px #0f0;
+        }
+        
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .card {
+            width: 300px;
+            height: 380px;
+            perspective: 1000px;
+        }
+        
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+        }
+        
+        .card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .card-front, .card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border: 2px solid #0f0;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 20, 0, 0.9);
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.7);
+        }
+        
+        .card-back {
+            transform: rotateY(180deg);
+            text-align: center;
+        }
+        
+        .card-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px #0f0;
+        }
+        
+        .card-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .card-desc {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .matrix-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .matrix-rain {
+            position: absolute;
+            top: -100%;
+            width: 100%;
+            color: #0f0;
+            font-size: 20px;
+            text-shadow: 0 0 5px #0f0;
+            animation: rain linear infinite;
+        }
+        
+        @keyframes rain {
+            0% {
+                top: -100%;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+        
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to bottom, rgba(0, 255, 0, 0.2), rgba(0, 255, 0, 0.7), rgba(0, 255, 0, 0.2));
+            top: 0;
+            left: 0;
+            animation: scan 4s linear infinite;
+            z-index: 10;
+        }
+        
+        @keyframes scan {
+            0% {
+                top: 0%;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+        
+        .terminal-text {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #0f0;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg" id="matrixBg"></div>
+    <div class="scan-line"></div>
+    
+    <div class="container" id="loginContainer">
+        <div class="login-box">
+            <h1>Secure Access</h1>
+            <div class="input-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password">
+            </div>
+            <button id="loginBtn">Login</button>
+            <div class="error" id="errorMsg">Invalid credentials. Access denied.</div>
+        </div>
+    </div>
+    
+    <div class="dashboard" id="dashboard">
+        <div class="dashboard-header">
+            <h1>Hacker UI InterSpace</h1>
+        </div>
+        
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="card-icon">👨‍💻</div>
+                        <div class="card-title">Hacker</div>
+                    </div>
+                    <div class="card-back">
+                        <div class="card-title">Elite Hacker</div>
+                        <div class="card-desc">
+                            Access granted to mainframe systems. Proceed with caution. All activities are being monitored.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="card-icon">🃏</div>
+                        <div class="card-title">Joker</div>
+                    </div>
+                    <div class="card-back">
+                        <div class="card-title">The Joker Card</div>
+                        <div class="card-desc">
+                            Why so serious? This is your wildcard access. Use it wisely or face the consequences.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="terminal-text">
+            > System accessed: 08:45:22<br>
+            > Security level: Omega Clearance<br>
+            > Welcome back, qwertyuiop
+        </div>
+    </div>
+
+    <script>
+        // Create matrix rain effect
+        const matrixBg = document.getElementById('matrixBg');
+        const characters = '01アイウエオカキクケコABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$%^&*()_+-=[]{}|;:,.<>?';
+        
+        for (let i = 0; i < 50; i++) {
+            const rain = document.createElement('div');
+            rain.classList.add('matrix-rain');
+            rain.style.left = Math.random() * 100 + 'vw';
+            rain.style.animationDuration = (Math.random() * 5 + 3) + 's';
+            rain.style.opacity = Math.random() * 0.5 + 0.3;
+            
+            let text = '';
+            const length = Math.floor(Math.random() * 30 + 20);
+            for (let j = 0; j < length; j++) {
+                text += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            
+            rain.textContent = text;
+            matrixBg.appendChild(rain);
+        }
+        
+        // Login functionality
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (username === 'qwertyuiop' && password === 'zxcvbnm') {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                
+                // Add access granted effect
+                const granted = document.createElement('div');
+                granted.style.position = 'fixed';
+                granted.style.top = '0';
+                granted.style.left = '0';
+                granted.style.width = '100%';
+                granted.style.height = '100%';
+                granted.style.background = 'rgba(0, 255, 0, 0.2)';
+                granted.style.zIndex = '100';
+                granted.style.display = 'flex';
+                granted.style.justifyContent = 'center';
+                granted.style.alignItems = 'center';
+                granted.style.fontSize = '5em';
+                granted.style.color = '#0f0';
+                granted.style.textShadow = '0 0 20px #0f0';
+                granted.style.animation = 'fadeOut 2s forwards';
+                granted.innerHTML = 'ACCESS GRANTED';
+                document.body.appendChild(granted);
+                
+                setTimeout(() => {
+                    document.body.removeChild(granted);
+                }, 2000);
+            } else {
+                errorMsg.style.display = 'block';
+                
+                // Shake effect on error
+                const loginBox = document.querySelector('.login-box');
+                loginBox.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    loginBox.style.animation = '';
+                }, 500);
+            }
+        });
+        
+        // Allow login on Enter key press
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginBtn').click();
+            }
+        });
+        
+        // Add shake animation for errors
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+                20%, 40%, 60%, 80% { transform: translateX(10px); }
+            }
+            
+            @keyframes fadeOut {
+                0% { opacity: 1; }
+                100% { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
